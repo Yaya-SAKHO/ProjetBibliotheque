@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="ProjetJava" />
         <module name="bibliotheque" />
+        <module name="JavaProjetBiblio" />
       </profile>
     </annotationProcessing>
   </component>

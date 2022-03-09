@@ -26,6 +26,10 @@ public class Lecteur implements Serializable {
         return num;
     }
 
+    public Integer getNu() {
+        return num;
+    }
+
     public String getNom() {
         return nom;
     }
