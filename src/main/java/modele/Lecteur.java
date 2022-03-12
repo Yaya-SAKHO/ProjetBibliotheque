@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Lecteur implements Serializable {
@@ -45,6 +46,7 @@ public class Lecteur implements Serializable {
     public String getEmail() {
         return this.email;
     }
+
 
     public Integer getAge() {
         int age;

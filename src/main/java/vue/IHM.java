@@ -59,6 +59,9 @@ public class IHM {
             case CREER_OUVRAGE:
                 bibliotheque.nouvelOuvrage(this);
                 break;
+            case CONSULTER_OUVRAGE:
+                bibliotheque.consulterOuvrage(this);
+                break;
             default:
                 assert false : "Commande inconnue.";
         }
@@ -92,6 +95,7 @@ public class IHM {
     public InfosLecteur saisirLecteur() {
         String nom, prenom, adresse, email;
         LocalDate dateNaiss;
+        boolean date ;
 
 
         ES.afficherTitre("== Saisie d'un lecteur ==");
@@ -99,6 +103,11 @@ public class IHM {
         prenom = ES.lireChaine("Saisir le prénom du lecteur :");
         adresse = ES.lireChaine("Saisir l'adresse du lecteur :");
         dateNaiss = ES.lireDate("Saisir la date de naissance du lecteur :");
+        date = veriDateNaissance(dateNaiss);
+        while (!date){
+            dateNaiss = ES.lireDate("la date de naissance doit être antérieure à la date du jour");
+            date = veriDateNaissance(dateNaiss);
+        }
         email = ES.lireEmail("Saisir l'email du lecteur :");
 
         return new InfosLecteur( nom, prenom, adresse, dateNaiss, email);
@@ -134,12 +143,21 @@ public class IHM {
 
         while (!a) {
 
-            ES.afficherLibelle("Veuiller rensseigner un numero de lecteur existant");
+            ES.afficherLibelle("Veuiller renseigner un numero de lecteur existant");
             numLecteur = ES.lireEntier();
             a = verifNumLecteur(numLecteur);
         }
 
         return numLecteur;
+    }
+
+    public boolean veriDateNaissance(LocalDate dateNaiss) {
+
+        if (LocalDate.now().isAfter(dateNaiss)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     //-----  Classes conteneurs et éléments de dialogue pour l'ouvrage -------------------------------------------------
@@ -152,15 +170,17 @@ public class IHM {
         public final String nomEditeur;
         public final LocalDate dateParution;
         public final String titre;
+        public final String publicVise ;
 
 
-        public InfosOuvrage(final String numISBN, final String nomAuteur, final String prenomAuteur, final String nomEditeur, final LocalDate dateParution, final String titre) {
+        public InfosOuvrage(final String numISBN, final String nomAuteur, final String prenomAuteur, final String nomEditeur, final LocalDate dateParution, final String titre,final String publicVise) {
             this.numISBN = numISBN;
             this.nomAuteur = nomAuteur;
             this.prenomAuteur = prenomAuteur;
             this.nomEditeur = nomEditeur;
             this.dateParution = dateParution;
             this.titre = titre;
+            this.publicVise = publicVise;
 
         }
     }
@@ -173,19 +193,49 @@ public class IHM {
         String prenomAuteur;
         String nomEditeur;
         LocalDate dateParution;
-        /*publicVise publicOuvrage;
-        int dernNumExemplaire;
+        String publicOuvrage;
+        PublicVise publicVise;
+        boolean a ;
+        boolean b;
+
+        /*int dernNumExemplaire;
         public Exemplaire ouvrage;*/
 
         ES.afficherTitre("== Saisie d'un ouvrage ==");
         numISBN = ES.lireChaine("Saisir le numero ISBN :");
+        a = verifNumISBN(numISBN);
+        while (a){
+
+            numISBN = ES.lireChaine("Numero ISBN déjà existant. resaisir le numero ISBN :");
+            a = verifNumISBN(numISBN);
+        }
         titre = ES.lireChaine("Saisir le titre de l'ouvrage :");
         nomAuteur = ES.lireChaine(" Saisir le nom de l'auteur :");
         prenomAuteur = ES.lireChaine("Saisir le prenom de l'auteur :");
         nomEditeur = ES.lireChaine("Saisir le nom de l'editeur :");
         dateParution = ES.lireDate("Saisir la date de parution");
+        b = veriDateParution(dateParution);
+        while (!b){
+            dateParution = ES.lireDate("date de parution doit etre anterieur a la date du jour. Saisir de nouveau");
+            b = veriDateParution(dateParution);
+        }
 
-        return new InfosOuvrage(numISBN, nomAuteur, prenomAuteur, nomEditeur, dateParution, titre);
+        publicOuvrage = ES.lireChaine("Saisir le public visé : 1 pour Enfant , 2 pour Ado , 3 pour Adulte");
+         switch(publicOuvrage){
+            case "1" :
+                publicOuvrage = PublicVise.ENFANT.getLibelle();
+                break;
+             case "2" :
+                 publicOuvrage = PublicVise.ADO.getLibelle();
+                 break; 
+             case "3":
+                 publicOuvrage = PublicVise.ADULTE.getLibelle();
+                 break;
+        }
+
+
+
+        return new InfosOuvrage(numISBN, nomAuteur, prenomAuteur, nomEditeur, dateParution, titre, publicOuvrage );
 
     }
 
@@ -195,8 +245,11 @@ public class IHM {
         ES.afficherLibelle("Nom Auteur  :" + ouvrage.getNomAuteur());
         ES.afficherLibelle("Prenom Editeur : " + ouvrage.getNomEditeur());
         ES.afficherLibelle("Date de parution : " + ouvrage.getDateParution());
+        ES.afficherLibelle("Public Ouvrage : " + ouvrage.getPublicOuvrage());
     }
 
+
+    public Set<String> lesISBN;
 
     public boolean verifNumISBN(String numISBN) {
 
@@ -215,6 +268,24 @@ public class IHM {
             return false;
         }
     }
+
+
+    public String saisirISBN(Set<String> lesISBN) {
+        this.lesISBN = lesISBN;
+        ES.afficherLibelle("Saisir le numero ISBN");
+        String numISBN = ES.lireChaine();
+        boolean a = verifNumISBN(numISBN);
+
+        while (!a) {
+            ES.afficherLibelle("Veuillez renseigner un numero ISBN existant");
+            numISBN = ES.lireChaine();
+            a = verifNumISBN(numISBN);
+        }
+
+        return numISBN;
+    }
+
+
 
 
     //-----  Primitives d'affichage  -----------------------------------------------

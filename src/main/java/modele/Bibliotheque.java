@@ -65,21 +65,16 @@ public class Bibliotheque implements Serializable {
 
     public void nouvelOuvrage(IHM ihm) {
         IHM.InfosOuvrage infosOuvrage = ihm.saisirOuvrage();
-        boolean a,b;
-        a = ihm.verifNumISBN(infosOuvrage.numISBN);
-        b = ihm.veriDateParution(infosOuvrage.dateParution);
+
         Ouvrage o ;
-        if (!a){
-            if (b) {
-                o = new Ouvrage(infosOuvrage.numISBN, infosOuvrage.nomAuteur, infosOuvrage.prenomAuteur, infosOuvrage.nomEditeur, infosOuvrage.dateParution, infosOuvrage.titre);
+
+                o = new Ouvrage(infosOuvrage.numISBN, infosOuvrage.nomAuteur, infosOuvrage.prenomAuteur, infosOuvrage.nomEditeur, infosOuvrage.dateParution, infosOuvrage.titre,infosOuvrage.publicVise);
                 setOuvrage(o, infosOuvrage.numISBN);
                 ihm.informerUtilisateur("création de l'ouvrage de numéro ISBN : " + infosOuvrage.numISBN, true);
-            }else {
-                ihm.informerUtilisateur("date de parution doit etre anterieur a la date du jour ",false);
-            }
-        } else {
-            ihm.informerUtilisateur("numéro ISBN de l'ouvrage existant", false);
-        }
+
+
+
+
     }
 
     private void setOuvrage(Ouvrage o, String num) {
@@ -90,6 +85,12 @@ public class Bibliotheque implements Serializable {
 
     public Set<String> listerISBN(){
         return ouvrages.keySet();
+    }
+
+    public void consulterOuvrage(IHM ihm) {
+        String numISBN = ihm.saisirISBN(listerISBN());
+        Ouvrage o = ouvrages.get(numISBN);
+        ihm.afficherOuvrage(o);
     }
 
 

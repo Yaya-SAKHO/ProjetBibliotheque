@@ -11,21 +11,21 @@ public class Ouvrage implements Serializable {
     private String prenomAuteur;
     private String nomEditeur;
     private LocalDate dateParution;
-    //private PublicVise publicOuvrage;
+    private  String publicOuvrage;
     private String titre;
     //private LocalDate dernierNumExemplaire ;
 
 
     public Ouvrage(String numISBN, String nomAuteur, String prenomAuteur,
-                   String nomEditeur, LocalDate dateParution, String titre)
+                   String nomEditeur, LocalDate dateParution, String titre,String publicOuvrage )
     {
         this.numISBN = numISBN;
         this.nomAuteur = nomAuteur;
         this.prenomAuteur = prenomAuteur;
         this.nomEditeur = nomEditeur;
         this.dateParution = dateParution;
-       // this.publicOuvrage = publicOuvrage;
         this.titre = titre;
+        this.publicOuvrage = publicOuvrage;
        // this.dernierNumExemplaire = dernierNumExemplaire;
     }
 
@@ -49,9 +49,9 @@ public class Ouvrage implements Serializable {
         return dateParution;
     }
 
-    /*public PublicVise getPublicOuvrage() {
+    public String getPublicOuvrage() {
         return publicOuvrage;
-    }*/
+    }
 
     public String getTitre() {
         return titre;
