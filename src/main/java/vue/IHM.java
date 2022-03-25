@@ -62,6 +62,12 @@ public class IHM {
             case CONSULTER_OUVRAGE:
                 bibliotheque.consulterOuvrage(this);
                 break;
+            case CREER_EXEMPLAIRE:
+                bibliotheque.nouvelExemplaire(this);
+                break;
+            case CONSULTER_EXEMPLAIRE:
+                bibliotheque.consulterExemplaireOuvrage(this);
+                break;
             default:
                 assert false : "Commande inconnue.";
         }
@@ -83,7 +89,7 @@ public class IHM {
         public final LocalDate dateNaiss;
         public final String email;
 
-        public InfosLecteur( final String nom, final String prenom, final String adresse, final LocalDate dateNaiss, final String email) {
+        public InfosLecteur(final String nom, final String prenom, final String adresse, final LocalDate dateNaiss, final String email) {
             this.nom = nom;
             this.prenom = prenom;
             this.adresse = adresse;
@@ -95,7 +101,7 @@ public class IHM {
     public InfosLecteur saisirLecteur() {
         String nom, prenom, adresse, email;
         LocalDate dateNaiss;
-        boolean date ;
+        boolean date;
 
 
         ES.afficherTitre("== Saisie d'un lecteur ==");
@@ -104,13 +110,13 @@ public class IHM {
         adresse = ES.lireChaine("Saisir l'adresse du lecteur :");
         dateNaiss = ES.lireDate("Saisir la date de naissance du lecteur :");
         date = veriDateNaissance(dateNaiss);
-        while (!date){
+        while (!date) {
             dateNaiss = ES.lireDate("la date de naissance doit être antérieure à la date du jour");
             date = veriDateNaissance(dateNaiss);
         }
         email = ES.lireEmail("Saisir l'email du lecteur :");
 
-        return new InfosLecteur( nom, prenom, adresse, dateNaiss, email);
+        return new InfosLecteur(nom, prenom, adresse, dateNaiss, email);
     }
 
     public void afficherLecteur(Lecteur lecteur) {
@@ -166,17 +172,15 @@ public class IHM {
 
         public final String numISBN;
         public final String nomAuteur;
-        public final String prenomAuteur;
         public final String nomEditeur;
         public final LocalDate dateParution;
         public final String titre;
-        public final String publicVise ;
+        public final String publicVise;
 
 
-        public InfosOuvrage(final String numISBN, final String nomAuteur, final String prenomAuteur, final String nomEditeur, final LocalDate dateParution, final String titre,final String publicVise) {
+        public InfosOuvrage(final String numISBN, final String nomAuteur, final String nomEditeur, final LocalDate dateParution, final String titre, final String publicVise) {
             this.numISBN = numISBN;
             this.nomAuteur = nomAuteur;
-            this.prenomAuteur = prenomAuteur;
             this.nomEditeur = nomEditeur;
             this.dateParution = dateParution;
             this.titre = titre;
@@ -190,52 +194,48 @@ public class IHM {
         String numISBN;
         String titre;
         String nomAuteur;
-        String prenomAuteur;
         String nomEditeur;
         LocalDate dateParution;
-        String publicOuvrage;
-        PublicVise publicVise;
-        boolean a ;
+        String publicOuvrage = null;
+        int publicVise;
+        boolean a;
         boolean b;
 
-        /*int dernNumExemplaire;
-        public Exemplaire ouvrage;*/
 
         ES.afficherTitre("== Saisie d'un ouvrage ==");
         numISBN = ES.lireChaine("Saisir le numero ISBN :");
         a = verifNumISBN(numISBN);
-        while (a){
+        while (a) {
 
             numISBN = ES.lireChaine("Numero ISBN déjà existant. resaisir le numero ISBN :");
             a = verifNumISBN(numISBN);
         }
         titre = ES.lireChaine("Saisir le titre de l'ouvrage :");
         nomAuteur = ES.lireChaine(" Saisir le nom de l'auteur :");
-        prenomAuteur = ES.lireChaine("Saisir le prenom de l'auteur :");
         nomEditeur = ES.lireChaine("Saisir le nom de l'editeur :");
         dateParution = ES.lireDate("Saisir la date de parution");
         b = veriDateParution(dateParution);
-        while (!b){
+        while (!b) {
             dateParution = ES.lireDate("date de parution doit etre anterieur a la date du jour. Saisir de nouveau");
             b = veriDateParution(dateParution);
         }
 
-        publicOuvrage = ES.lireChaine("Saisir le public visé : 1 pour Enfant , 2 pour Ado , 3 pour Adulte");
-         switch(publicOuvrage){
-            case "1" :
+        do {
+            publicVise = ES.lireEntier("Saisir le public visé : 1 pour Enfant , 2 pour Ado , 3 pour Adulte");
+            if (publicVise == 1){
                 publicOuvrage = PublicVise.ENFANT.getLibelle();
-                break;
-             case "2" :
-                 publicOuvrage = PublicVise.ADO.getLibelle();
-                 break; 
-             case "3":
-                 publicOuvrage = PublicVise.ADULTE.getLibelle();
-                 break;
-        }
+            }
+            else if(publicVise == 2){
+                publicOuvrage = PublicVise.ADO.getLibelle();
+            }
+            else if (publicVise == 3){
+                publicOuvrage = PublicVise.ADULTE.getLibelle();
+            }
+
+        }while (publicVise!=1 && publicVise!=2 && publicVise!=3 );
 
 
-
-        return new InfosOuvrage(numISBN, nomAuteur, prenomAuteur, nomEditeur, dateParution, titre, publicOuvrage );
+        return new InfosOuvrage(numISBN, nomAuteur, nomEditeur, dateParution, titre, publicOuvrage);
 
     }
 
@@ -285,7 +285,75 @@ public class IHM {
         return numISBN;
     }
 
+    //-----  Classes conteneurs et éléments de dialogue pour l'exemplaire-------------------------------------------------
 
+    public static class InfosExemplaire {
+
+        public final LocalDate dateReception;
+        public final Boolean empruntable;
+
+        public InfosExemplaire(final LocalDate dateReception, final Boolean empruntable) {
+            this.dateReception = dateReception;
+            this.empruntable = empruntable ;
+
+        }
+    }
+
+    public InfosExemplaire saisirExemplaire() {
+
+        LocalDate dateReception ;
+        String estempruntable ;
+        Boolean empruntable = null;
+
+        boolean dateRecept;
+
+
+
+        ES.afficherTitre("== Saisie d'un exemplaire ==");
+        dateReception = ES.lireDate("Saisir la date de réception:");
+        dateRecept = verifDateReception(dateReception ,bibliotheque.getDateP());
+        while (!dateRecept) {
+            dateReception = ES.lireDate("date de parution doit etre anterieur a la date de reception. Saisir de nouveau");
+            dateRecept = verifDateReception(dateReception ,bibliotheque.getDateP());
+        }
+
+        estempruntable= ES.lireChaine("L'exemplaire est-il empruntable ? ('o' ou 'n')");
+        while(empruntable == null){
+            if(estempruntable.equals("o")){
+                empruntable = true ;
+            }
+            else if(estempruntable.equals("n")){
+                empruntable = false ;
+            }
+            else{
+                estempruntable= ES.lireChaine("Saisie non conforme, l'exemplaire est-il empruntable ? ('o' ou 'n')");
+            }
+        }
+
+        return new InfosExemplaire(dateReception,empruntable);
+
+    }
+
+    public boolean verifDateReception(LocalDate dateReception , LocalDate dateParution) {
+
+        if (dateReception.isAfter(dateParution)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void afficherExemplaire(Exemplaire exemplaire) {
+        ES.afficherTitre("== affichage du l'exemplaire == " + exemplaire.getNumExemplaire());
+        ES.afficherLibelle("Numero ISBN : " + exemplaire.getOuvrage().getNumISBN());
+        ES.afficherLibelle("Titre : "  + exemplaire.getOuvrage().getTitre());
+        ES.afficherLibelle("Date de Reception  :" + exemplaire.getDateReception());
+        ES.afficherLibelle("Empruntable  : " + exemplaire.isEmpruntable());
+    }
+
+    /*public void informerInfoUtulisateur(String ISBN, int numExemplaire, String titre, boolean empruntable, LocalDate date){
+        afficherExemplaire(ISBN,numExemplaire,titre,empruntable,date);
+    }*/
 
 
     //-----  Primitives d'affichage  -----------------------------------------------
