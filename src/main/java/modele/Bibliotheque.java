@@ -30,7 +30,7 @@ public class Bibliotheque implements Serializable {
         if (l == null) {
             l = new Lecteur(numLecteur, infosLecteur.nom, infosLecteur.prenom, infosLecteur.dateNaiss, infosLecteur.email);
             setLecteur(l, numLecteur);
-            ihm.informerUtilisateur("création du lecteur de numéro : " + numLecteur, true);
+            ihm.informerUtilisateur("Création du lecteur de numéro : " + numLecteur, true);
 
         } else {
             ihm.informerUtilisateur("numéro de lecteur existant", false);
@@ -71,7 +71,7 @@ public class Bibliotheque implements Serializable {
 
         o = new Ouvrage(infosOuvrage.numISBN, infosOuvrage.nomAuteur, infosOuvrage.nomEditeur, infosOuvrage.dateParution, infosOuvrage.titre, infosOuvrage.publicVise);
         setOuvrage(o, infosOuvrage.numISBN);
-        ihm.informerUtilisateur("création de l'ouvrage de numéro ISBN : " + infosOuvrage.numISBN, true);
+        ihm.informerUtilisateur("Création de l'ouvrage de numéro ISBN : " + infosOuvrage.numISBN, true);
 
     }
 
@@ -97,7 +97,7 @@ public class Bibliotheque implements Serializable {
         dateP = o.getDateParution();
         IHM.InfosExemplaire infosExemplaire = ihm.saisirExemplaire();
         o.ajoutExmplaire(o, infosExemplaire.dateReception, infosExemplaire.empruntable);
-        ihm.informerUtilisateur("création de l'exemplaire numero: " , true);
+        ihm.informerUtilisateur("Création de l'exemplaire : " , true);
     }
 
     public LocalDate getDateP() {
@@ -109,9 +109,68 @@ public class Bibliotheque implements Serializable {
 
         String numISBNE= ihm.saisirISBN(listerISBN());
         Ouvrage o = ouvrages.get(numISBNE);
-        for (Exemplaire ex : o.getExemplaires()) {
+        for (Exemplaire ex : o.getHashSetExemplaires()) {
             ihm.afficherExemplaire(ex);
         }
+    }
+
+    /*---------------------------------------------EmprunterExemplaire-----------------------------------------------------------------*/
+
+    public void EmprunterExemplaire(IHM ihm) {
+        IHM.InfosEmpruntExemplaire infosEmpruntExemplaire = ihm.saisirEmpruntExemplaire(listerISBN(),listerNumLect());
+        Ouvrage o = ouvrages.get(infosEmpruntExemplaire.numISBN);
+        Exemplaire e = recupExemplaire(o, infosEmpruntExemplaire.numExmplaire);
+        Lecteur l = lecteurs.get(infosEmpruntExemplaire.numLecteur);
+        //boolean f = verifSatureEmprunt(empunt)
+        int age = l.getAge();
+        PublicVise publicVise = o.getPublicOuvrage();
+        boolean g = verifPublicLecteur(age,publicVise);
+        if (g  /*&& /*e.isDisponible()*/){
+            Emprunt em = new Emprunt(infosEmpruntExemplaire.dateEmprunt,e,l);
+            o.getExemplaires().get(e.getNumExemplaire()+o.getNumISBN()).setDisponible(false);
+            //l.getEmprunts().add(em);
+            l.setEmprunts(em);
+            //l.addEmprunt(em);
+            ihm.informerUtilisateur("Emprunt réussi de numéro d'exemplaire : " +infosEmpruntExemplaire.numExmplaire , true);
+        }
+        else {
+            ihm.informerUtilisateur("L'emprunt Public ne correspond pas à l'ouvrage ou l'ouvrage n'est pas disponible: " +infosEmpruntExemplaire.numExmplaire , false);
+        }
+    }
+
+    public Exemplaire recupExemplaire(Ouvrage o , int numExemplaire){
+        String key = numExemplaire + o.getNumISBN();
+        return o.getExemplaire(key);
+    }
+
+    public boolean verifPublicLecteur(int age , PublicVise publicVise)
+    {
+        return age > publicVise.getAgeMin();
+    }
+
+    public void consulterEmpruntLecteur(IHM ihm) {
+        int numLecteur = ihm.saisirNumLecteur(listerNumLect());
+        Lecteur l = lecteurs.get(numLecteur);
+        ihm.afficheLecteur(l);
+        for (Emprunt em : l.getEmprunts()){
+            ihm.afficherEmpruntLecteur(em);
+        }
+    }
+
+    //----------------------------------------Rendre Exemplaire---------------------------------------------------------------------
+
+    public void rendreExemplaire(IHM ihm) {
+        IHM.InfosExemplaireRendu infosExemplaireRendu = ihm.saisirExemplaireRendu(listerISBN(),listerNumLect());
+        Ouvrage o = ouvrages.get(infosExemplaireRendu.numISBN);
+        Exemplaire e = recupExemplaire(o, infosExemplaireRendu.numExemplaire);
+        boolean c = e.isNotDisponible();
+        if (c){
+            e.setDisponible(true);
+            Lecteur l = lecteurs.get(infosExemplaireRendu.numLecteur);
+            //l.suprimerEmprunt();
+            ihm.informerUtilisateur("Rendu réussi : " , true);
+        }
+
     }
 
 

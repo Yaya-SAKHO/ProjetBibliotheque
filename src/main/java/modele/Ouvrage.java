@@ -3,6 +3,7 @@ package modele;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -12,15 +13,16 @@ public class Ouvrage implements Serializable {
     private String nomAuteur;
     private String nomEditeur;
     private LocalDate dateParution;
-    private  String publicOuvrage;
+    //private  String publicOuvrage;
+    private PublicVise publicOuvrage;
     private String titre;
-    private HashSet<Exemplaire> exemplaires;
+    private HashMap<String,Exemplaire> exemplaires;
     private  int dernierNumExemplaire = 1;
 
 
 
     public Ouvrage(String numISBN, String nomAuteur,
-                   String nomEditeur, LocalDate dateParution, String titre,String publicOuvrage )
+                   String nomEditeur, LocalDate dateParution, String titre,PublicVise publicOuvrage )
     {
         this.numISBN = numISBN;
         this.nomAuteur = nomAuteur;
@@ -28,7 +30,7 @@ public class Ouvrage implements Serializable {
         this.dateParution = dateParution;
         this.titre = titre;
         this.publicOuvrage = publicOuvrage;
-        this.exemplaires = new HashSet<>();
+        this.exemplaires = new HashMap<>();
     }
 
     public String getNumISBN() {
@@ -39,7 +41,6 @@ public class Ouvrage implements Serializable {
         return nomAuteur;
     }
 
-
     public String getNomEditeur() {
         return nomEditeur;
     }
@@ -48,7 +49,7 @@ public class Ouvrage implements Serializable {
         return dateParution;
     }
 
-    public String getPublicOuvrage() {
+    public PublicVise getPublicOuvrage() {
         return publicOuvrage;
     }
 
@@ -61,23 +62,36 @@ public class Ouvrage implements Serializable {
     }
 
 
-    public void setExemplaires(Exemplaire e) {
-        exemplaires.add(e);
+    public void addExemplaires(Exemplaire e) {
+        String key = e.getNumExemplaire() + e.getOuvrage().getNumISBN();
+        exemplaires.put(key,e);
     }
 
     public void setExemplaire(Exemplaire e){
-        this.setExemplaires(e);
+        this.addExemplaires(e);
     }
 
 
+    public  Exemplaire getExemplaire(String key) {
+        return exemplaires.get(key);
+    }
 
-    public HashSet<Exemplaire> getExemplaires() {
+    public HashSet<Exemplaire> getHashSetExemplaires() {
+        HashSet<Exemplaire> result = new HashSet<>();
+        for (Exemplaire e : exemplaires.values()) {
+            result.add(e);
+        }
+        return result;
+    }
+
+    public HashMap<String, Exemplaire> getExemplaires() {
         return exemplaires;
     }
 
-    /*private void setExemplaire(Exemplaire e, int num) {
-        this.exemplaires.put(num, e);
-    }*/
+    public void setExemplaires(HashMap<String, Exemplaire> exemplaires) {
+        this.exemplaires = exemplaires;
+    }
+
 
     public void ajoutExmplaire(Ouvrage o, LocalDate dateReception, Boolean empruntable){
         int numExemplaire = o.incrementerNumero();

@@ -2,6 +2,7 @@ package modele;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.time.LocalDate;
 import java.util.Set;
@@ -14,6 +15,7 @@ public class Lecteur implements Serializable {
     private String prenom;
     private LocalDate dateNaiss;
     private String email;
+    private Set<Emprunt> emprunts = new HashSet<>();
 
     public Lecteur(int num ,String nom, String prenom, LocalDate dateNaiss, String email) {
         this.num = num;
@@ -60,4 +62,29 @@ public class Lecteur implements Serializable {
         }
         return age;
     }
-}
+
+    public Set<Emprunt> getEmprunts() {
+        return emprunts;
+    }
+
+    public void setEmprunts(Set<Emprunt> emprunts) {
+        this.emprunts = emprunts;
+    }
+
+    public void setEmprunts(Emprunt em){
+        this.addEmprunt(em);
+    }
+
+    public void addEmprunt(Emprunt em) {
+        emprunts.add(em);
+    }
+
+    public void getNombreEmprunt(){
+        emprunts.size();
+    }
+
+    public void suprimerEmprunt(Emprunt emprunt){
+        emprunts.remove(emprunt);
+    }
+
+  }
